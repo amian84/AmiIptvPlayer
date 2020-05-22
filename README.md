@@ -27,3 +27,7 @@ apt-get install vlc
 
 ### Windows
 Execute the file iptv.bat
+
+
+## Thanks
+I used the m3uparser from that repository [M3uParser](https://github.com/Timmy93/M3uParser)

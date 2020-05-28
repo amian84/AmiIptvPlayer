@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import M3uParser
+import sys
 import logging
 import os
 from subprocess import Popen, PIPE
@@ -12,7 +13,8 @@ from gi.repository.GdkPixbuf import Pixbuf, InterpType
 
 import urllib
 
-
+PATH = os.path.dirname(os.path.realpath(__file__))
+CFG=None
 GObject.threads_init()
 
 
@@ -32,12 +34,20 @@ def get_image_stream(url):
     pixbuf = pixbuf.scale_simple(100, height, InterpType.BILINEAR)
     return pixbuf
 
-def parseM3U(url):
-    logFile = "parser.log"
+def parseM3U(url, parent):
+    logFile = os.path.join(PATH,"parser.log")
     myfile = M3uParser.M3uParser(logging)
     logging.basicConfig(filename=createAbsolutePath(logFile),level=logging.ERROR,format='%(asctime)s %(levelname)-8s %(message)s')
-    myfile.downloadM3u(url, "list.m3u")
-    json_file = {"channels": myfile.files}
+    try:
+        myfile.downloadM3u(url, os.path.join(PATH,"list.m3u"))
+        json_file = {"channels": myfile.files}
+    except:
+        json_file = {"channels": []}
+        md = Gtk.MessageDialog(parent.window,
+            Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
+            Gtk.ButtonsType.CLOSE, "Error al descargar la lista, por favor configure la lista en las preferencias")
+        md.run()
+        md.destroy()
     return json_file
 
 #Check if the given path is an absolute path
@@ -83,28 +93,40 @@ class Handler:
                 try:
                     args[1].set_from_pixbuf(get_image_stream(url))
                 except:
-                    args[1].set_from_pixbuf(get_image_stream("img/nochannel.png"))    
+                    args[1].set_from_pixbuf(get_image_stream(os.path.join(PATH,"img/nochannel.png")))    
             else:
-                args[1].set_from_pixbuf(get_image_stream("img/nochannel.png"))
+                args[1].set_from_pixbuf(get_image_stream(os.path.join(PATH,"img/nochannel.png")))
         except:
-            args[1].set_from_pixbuf(get_image_stream("img/nochannel.png"))
+            args[1].set_from_pixbuf(get_image_stream(os.path.join(PATH,"img/nochannel.png")))
         
 
     def on_row_activated(self, row, col):
         model = self.get_model()
         text = str(model[row][0]) + ", " + model[row][1] + ", " + model[row][2] + ", " + model[row][3]
         global vlc_process
+        process_name = "vlc"
+        is_windows = hasattr(sys, 'getwindowsversion')
+        if is_windows:
+            process_name = os.path.join(CFG["vlcPathWin"], "vlc.exe")
         if vlc_process:
             vlc_process.kill()
             vlc_process=None
-        vlc_process = Popen(['vlc', '--audio', model[row][2]], stdout=PIPE, stderr=PIPE)
+        try:
+            vlc_process = Popen([process_name, '--audio', model[row][2]], stdout=PIPE, stderr=PIPE)
+        except:
+            md = Gtk.MessageDialog(parent.window,
+                Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
+                Gtk.ButtonsType.CLOSE, "Por favor instale el reproductor VLC en su maquina. Si usa Windows asegurese que el VLC esta en la ruta concreta, si no modificala en las preferencias")
+            md.run()
+            md.destroy()
+            
         
 
 class IPTV:
     def __init__(self):
         self.url_list = ""
         builder = Gtk.Builder()
-        builder.add_from_file("ui/main.glade")
+        builder.add_from_file(os.path.join(PATH,"ui/main.glade"))
         builder.connect_signals(Handler(self))
         self.window = builder.get_object("main")
         self.listmodel = Gtk.ListStore(int, str, str, str)
@@ -114,7 +136,7 @@ class IPTV:
         self.view = Gtk.TreeView.new_with_model(model=self.new_filter)
         self.logoImage = builder.get_object("logoImg")
         try:
-            self.logoImage.set_from_pixbuf(get_image_stream("img/nochannel.png"))
+            self.logoImage.set_from_pixbuf(get_image_stream(os.path.join(PATH,"img/nochannel.png")))
         except Exception as ex:
             pass
         epgview = builder.get_object("epg_label")
@@ -148,7 +170,7 @@ class IPTV:
             i=i+1
 
     def process_and_update(self):
-        self.myfile = parseM3U(self.url_list)
+        self.myfile = parseM3U(self.url_list, self)
         self.fill_liststore()
         changeCursor(Gdk.CursorType.ARROW, self.window)
 
@@ -160,7 +182,10 @@ class IPTV:
         
 
 if __name__ == "__main__":
+    with open((os.path.join(PATH, "cfg.json"))) as json_file:
+        CFG = json.load(json_file)
     iptv = IPTV()
-    iptv.url_list = ""#SET YOUR IPTV LIST
+    iptv.url_list =  CFG["url_list"]
     #iptv.parser_and_updete()
+    
     Gtk.main()

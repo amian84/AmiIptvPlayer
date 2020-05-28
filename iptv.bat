@@ -1,0 +1,1 @@
+c:\msys64\mingw64.exe python3 iptv.py

@@ -25,8 +25,9 @@ class M3uParser:
 		try:
 			filename = os.path.join(currentDir, filename)
 			urllib.request.urlretrieve(url, filename)
-		except:
+		except Exception as ex:
 			print("Cannot download anything from the url\nHave you modified the ini file?")
+			print("Exception: " +str(ex))
 			exit()
 		self.readM3u(filename)
 	

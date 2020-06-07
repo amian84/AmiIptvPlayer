@@ -62,6 +62,25 @@ def changeCursor(ctype, window):
     cursor = Gdk.Cursor.new(ctype)
     window.get_root_window().set_cursor(cursor)
 
+class HandlerPref:
+    def __init__(self, data):
+        super().__init__()
+        self.data = data
+
+    def btCancel_clicked_cb(self, widget):
+        widget.get_parent().get_parent().get_parent().destroy()
+
+    def btOK_clicked_cb(self, widget):
+        url = self.data["url"].get_text()
+        vlc = self.data["vlc"].get_text()
+        CFG["vlcPathWin"] = vlc
+        CFG["url_list"] = url
+        with open(os.path.join(PATH, "cfg.json"), 'w') as outfile:
+            json.dump(CFG, outfile)
+        widget.get_parent().get_parent().get_parent().destroy()
+        
+
+
 class Handler:
     def __init__(self, iptv):
         super().__init__()
@@ -75,6 +94,18 @@ class Handler:
         self.iptv.filter_data = text_filter
         self.iptv.new_filter.refilter()
 
+    def on_btnPreference_activate(self, widget):
+        builder = Gtk.Builder()
+        builder.add_from_file(os.path.join(PATH,"ui/preference.glade"))
+        window = builder.get_object("main")
+        btnCancel = builder.get_object("btCancel")
+        btnCancel.grab_focus()
+        vlc_path = builder.get_object("entryVLC")
+        url_list = builder.get_object("entryURL")
+        vlc_path.set_text(CFG["vlcPathWin"])
+        url_list.set_text(CFG["url_list"])
+        builder.connect_signals(HandlerPref({"vlc":vlc_path, "url":url_list}))
+        window.show()
 
     def on_btnActualizar_activate(self, widget):
         changeCursor(Gdk.CursorType.WATCH, self.iptv.window)

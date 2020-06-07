@@ -39,7 +39,7 @@ def parseM3U(url, parent):
     myfile = M3uParser.M3uParser(logging)
     logging.basicConfig(filename=createAbsolutePath(logFile),level=logging.ERROR,format='%(asctime)s %(levelname)-8s %(message)s')
     try:
-        myfile.downloadM3u(url, os.path.join(PATH,"list.m3u"))
+        myfile.downloadM3u(url, os.path.join(PATH, "cache" ,"list.m3u"))
         json_file = {"channels": myfile.files}
     except:
         json_file = {"channels": []}
@@ -75,9 +75,11 @@ class HandlerPref:
         vlc = self.data["vlc"].get_text()
         CFG["vlcPathWin"] = vlc
         CFG["url_list"] = url
+        self.data["iptv"].url_list = url
         with open(os.path.join(PATH, "cfg.json"), 'w') as outfile:
             json.dump(CFG, outfile)
         widget.get_parent().get_parent().get_parent().destroy()
+        self.data["iptv"].process_and_update()
         
 
 
@@ -104,7 +106,7 @@ class Handler:
         url_list = builder.get_object("entryURL")
         vlc_path.set_text(CFG["vlcPathWin"])
         url_list.set_text(CFG["url_list"])
-        builder.connect_signals(HandlerPref({"vlc":vlc_path, "url":url_list}))
+        builder.connect_signals(HandlerPref({"vlc":vlc_path, "url":url_list, "iptv":self.iptv}))
         window.show()
 
     def on_btnActualizar_activate(self, widget):

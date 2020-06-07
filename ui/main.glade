@@ -41,12 +41,14 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem">
+                      <object class="GtkImageMenuItem" id="btnPreference">
                         <property name="label">gtk-preferences</property>
+                        <property name="name">btnPrefence</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_btnPreference_activate" swapped="no"/>
                       </object>
                     </child>
                   </object>

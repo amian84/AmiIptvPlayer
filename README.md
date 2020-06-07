@@ -16,8 +16,14 @@ apt-get install vlc
 ```
 
 ### Windows
-[Python latest release](https://www.python.org/downloads/windows/)
+
 [PyGobect](https://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started)
+
+1. Go to [msys2](http://www.msys2.org/) and download the x86_64 installer
+2. Follow the instructions on the page for setting up the basic environment
+3. Run C:\msys64\mingw64.exe - a terminal window should pop up
+4. Execute pacman -Suy
+5.  Execute pacman -S mingw-w64-x86_64-gtk3 mingw-w64-x86_64-python3 mingw-w64-x86_64-python3-gobject
 
 ## Run
 ### Linux

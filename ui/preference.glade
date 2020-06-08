@@ -30,7 +30,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Ruta VLC en Windows:</property>
+                <property name="label" translatable="yes">VLC Path (Only for MS Windows OS):</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -68,7 +68,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Url de la lista IPTV:</property>
+                <property name="label" translatable="yes">IPTV M3U Play List URL:</property>
               </object>
               <packing>
                 <property name="expand">False</property>

@@ -15,8 +15,6 @@ import urllib
 
 PATH = os.path.dirname(os.path.realpath(__file__))
 CFG=None
-GObject.threads_init()
-
 
 vlc_process = None
 

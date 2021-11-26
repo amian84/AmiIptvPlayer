@@ -24,6 +24,7 @@ class M3uParser:
 			filename = "test.m3u"
 		try:
 			filename = os.path.join(currentDir, filename)
+			print(filename)
 			urllib.request.urlretrieve(url, filename)
 		except Exception as ex:
 			print("Cannot download anything from the url\nHave you modified the ini file?")
@@ -39,7 +40,7 @@ class M3uParser:
 
 	#Read all file lines
 	def readAllLines(self):
-		self.lines = [line.rstrip('\n') for line in open(self.filename)]
+		self.lines = [line.rstrip('\n') for line in open(self.filename,encoding="utf8")]
 		return len(self.lines)
 	
 	def parseFile(self):
@@ -55,13 +56,25 @@ class M3uParser:
 		lineLink = self.lines[n+1]
 		if lineInfo != "#EXTM3U":
 			m = re.search("tvg-name=\"(.*?)\"", lineInfo)
-			name = m.group(1)
+			if m != None:
+				name = m.group(1)
+			else:
+				name =""
 			m = re.search("tvg-logo=\"(.*?)\"", lineInfo)
-			logo = m.group(1)
+			if m != None:
+				logo = m.group(1)
+			else:
+				logo = ""
 			m = re.search("group-title=\"(.*?)\"", lineInfo)
-			group = m.group(1)
+			if m != None:
+				group = m.group(1)
+			else:
+				group = ""
 			m = re.search("[,](?!.*[,])(.*?)$", lineInfo)
-			title = m.group(1)
+			if m != None:
+				title = m.group(1)
+			else:
+				title =""
 			# ~ print(name+"||"+id+"||"+logo+"||"+group+"||"+title)
 			
 			test = {

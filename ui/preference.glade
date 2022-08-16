@@ -4,7 +4,7 @@
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkWindow" id="main">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Ami IPTV Player</property>
+    <property name="title" translatable="yes">Simple AmiIptvPlayer: Preferences</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">center</property>
@@ -30,7 +30,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Ruta VLC en Windows:</property>
+                <property name="label" translatable="yes">Ruta VLC: (Valido solo en Windows)</property>
               </object>
               <packing>
                 <property name="expand">False</property>

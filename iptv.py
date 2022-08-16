@@ -25,6 +25,12 @@ def get_image_stream(url):
     if "nochannel.png" in url:
         pixbuf = Pixbuf.new_from_file(url)
     else:
+        opener = urllib.request.build_opener()
+        opener.addheaders = [
+                ('User-agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0'),
+                ('Accept', '*/*')
+            ]
+        urllib.request.install_opener(opener)
         response = urllib.request.urlopen(url)
         input_stream = Gio.MemoryInputStream.new_from_data(response.read(), None)
         pixbuf = Pixbuf.new_from_stream(input_stream, None)
@@ -36,8 +42,8 @@ def get_image_stream(url):
 
 def parseM3U(url, parent):
     logFile = os.path.join(PATH,"parser.log")
-    myfile = M3uParser.M3uParser(logging)
     logging.basicConfig(filename=createAbsolutePath(logFile),level=logging.ERROR,format='%(asctime)s %(levelname)-8s %(message)s')
+    myfile = M3uParser.M3uParser(logging)
     try:
         myfile.downloadM3u(url, os.path.join(PATH, "cache" ,"list.m3u"))
         json_file = {"channels": myfile.files}
@@ -125,7 +131,7 @@ class Handler:
             if url:
                 try:
                     args[1].set_from_pixbuf(get_image_stream(url))
-                except:
+                except Exception as ex:
                     args[1].set_from_pixbuf(get_image_stream(os.path.join(PATH,"img/nochannel.png")))    
             else:
                 args[1].set_from_pixbuf(get_image_stream(os.path.join(PATH,"img/nochannel.png")))
@@ -199,6 +205,8 @@ class IPTV:
         i=1
         self.listmodel.clear()
         for channel in self.myfile["channels"]:
+            if not channel["title"]:
+                continue
             self.listmodel.append([i,channel["title"], channel["link"], channel["tvg-logo"]])
             i=i+1
 
@@ -206,6 +214,19 @@ class IPTV:
         self.myfile = parseM3U(self.url_list, self)
         self.fill_liststore()
         changeCursor(Gdk.CursorType.ARROW, self.window)
+        with open((os.path.join(PATH, "cache", "list.json")), "w") as json_file:
+            json.dump(self.myfile, json_file)
+
+    def parser_and_updete(self):
+        try:
+            with open((os.path.join(PATH, "cache", "list.json"))) as json_file:
+                self.myfile = json.load(json_file)
+            self.fill_liststore()
+            changeCursor(Gdk.CursorType.ARROW, self.window)
+        except Exception as ex:
+            logging.error("Can not process list.json cache: "+ str(ex))
+        
+
 
     def filter_model(self, model, iter, data):
         if not self.filter_data:
@@ -219,6 +240,7 @@ if __name__ == "__main__":
         CFG = json.load(json_file)
     iptv = IPTV()
     iptv.url_list =  CFG["url_list"]
-    #iptv.parser_and_updete()
+    if os.path.exists(os.path.join(PATH, "cache", "list.json")):
+        iptv.parser_and_updete()
     
     Gtk.main()

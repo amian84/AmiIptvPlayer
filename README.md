@@ -30,6 +30,11 @@ apt-get install vlc
 ```bash
 ./iptv.py
 ```
+or
+
+```bash
+./iptv.sh
+```
 
 ### Windows
 Execute the file iptv.bat

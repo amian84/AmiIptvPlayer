@@ -50,8 +50,10 @@ class M3uParser:
     
     def parseFile(self):
         numLine = len(self.lines)
-        for n in range(numLine):
+        for n in range(numLine):            
             line = self.lines[n]
+            if line == "":
+                continue
             if line[0] == "#":
                 #print("Letto carattere interessante")
                 self.manageLine(n)
